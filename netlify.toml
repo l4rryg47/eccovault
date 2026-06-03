@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[dev]
+  command = "npm run dev"
+  port = 4173
+  publish = "dist"
+
+# SPA fallback: serve index.html for any path that isn't a real file so
+# client-side routes (e.g. /auth, /dashboard) survive a hard refresh / deep link.
+# React Router then renders the matching route, or <NotFound> for unknown paths.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

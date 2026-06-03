@@ -1,0 +1,11 @@
+<!--
+  Signup confirmation email — OTP code variant.
+  The `{{ .Token }}` placeholder renders the 6-digit code the user types into
+  the verification step (see AuthPage). Do NOT switch this back to
+  `{{ .ConfirmationURL }}` / a magic link — the app verifies via code entry
+  (supabase.auth.verifyOtp), not a link click.
+-->
+<h2>Confirm your email</h2>
+<p>Use the verification code below to finish creating your Eccovault account:</p>
+<p style="font-size:28px;font-weight:bold;letter-spacing:6px;margin:24px 0;">{{ .Token }}</p>
+<p>This code expires in 1 hour. If you didn't request it, you can safely ignore this email.</p>
