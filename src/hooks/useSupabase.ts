@@ -482,3 +482,18 @@ export const useUpdatePassword = () => {
     },
   });
 };
+
+// ─── Transfer OTP ─────────────────────────────────────────────
+
+export const useSendTransferOtp = () => {
+  return useMutation({
+    mutationFn: async (accountId: string) => {
+      const { data, error } = await supabase.functions.invoke("send-transfer-otp", {
+        body: { account_id: accountId },
+      });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      return data as { ok: boolean };
+    },
+  });
+};

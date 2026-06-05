@@ -654,22 +654,6 @@ export const useDeclineCardPayment = () => {
   });
 };
 
-// ─── Admin generate transfer OTP ─────────────────────────────
-
-export const useAdminGenerateTransferOtp = () => {
-  return useMutation({
-    mutationFn: async (accountId: string): Promise<{ ok: boolean; code?: string; error?: string }> => {
-      const { data, error } = await supabase.rpc("admin_generate_transfer_otp", {
-        p_account_id: accountId,
-      });
-      if (error) throw new Error(error.message);
-      const r = data as { ok: boolean; code?: string; error?: string };
-      if (!r.ok) throw new Error(r.error ?? "Failed to generate OTP");
-      return r;
-    },
-  });
-};
-
 // ─── Admin set per-account pending-review message ────────────────
 export const useAdminSetTransferPendingMessage = () => {
   const qc = useQueryClient();

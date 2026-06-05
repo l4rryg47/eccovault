@@ -26,7 +26,7 @@ import { useAuth } from "@/contexts/AuthContext";
 // ─── Constants ────────────────────────────────────────────────
 
 /** Total idle time before forced sign-out (ms). */
-export const TIMEOUT_MS = 3 * 60 * 1000;          // 3 minutes
+export const TIMEOUT_MS = 10 * 60 * 1000;          // 3 minutes
 
 /** How long before timeout the warning toast appears (ms). */
 const WARN_BEFORE_MS = 2 * 60 * 1000;              // 2 minutes before

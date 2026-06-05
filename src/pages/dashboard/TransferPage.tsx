@@ -12,6 +12,7 @@ import {
   useAccounts, useTransfer, useRealtimeAccounts,
   useBeneficiaries, useAddBeneficiary, useDeleteBeneficiary,
   useSendExternalTransfer, useDeposit, useCustomMessages,
+  useSendTransferOtp,
 } from "@/hooks/useSupabase";
 import { formatCurrency } from "@/lib/format";
 import { toast } from "sonner";
@@ -132,6 +133,7 @@ const TransferPage = () => {
 
   const transferOwn       = useTransfer();
   const sendExternal      = useSendExternalTransfer();
+  const sendTransferOtp   = useSendTransferOtp();
   const deposit           = useDeposit();
   const addBeneficiary    = useAddBeneficiary();
   const deleteBeneficiary = useDeleteBeneficiary();
@@ -194,6 +196,16 @@ const TransferPage = () => {
   };
 
   // ── Handlers ───────────────────────────────────────────────
+
+  const goToOwnConfirm = () => {
+    setOwnStep("confirm");
+    sendTransferOtp.mutate(fromId!);
+  };
+
+  const goToExtConfirm = () => {
+    setExtStep("confirm");
+    sendTransferOtp.mutate(fromId!);
+  };
 
   const handleOwnConfirm = () => {
     if (!fromId || !toId || parsedAmount <= 0) return;
@@ -535,7 +547,7 @@ const TransferPage = () => {
               </div>
               <Button variant="hero" className="w-full" size="lg"
                 disabled={!amount || parsedAmount <= 0 || parsedAmount > fromAccount.balance}
-                onClick={() => setOwnStep("confirm")}>
+                onClick={goToOwnConfirm}>
                 Review <ArrowRight size={18} />
               </Button>
             </motion.div>
@@ -567,11 +579,23 @@ const TransferPage = () => {
                 <div className="space-y-2 rounded border border-border/40 bg-muted/30 p-4">
                   <div className="flex items-center gap-2">
                     <KeyRound size={14} className="text-muted-foreground" />
-                    <p className="text-xs font-medium text-foreground">Transfer OTP required</p>
+                    <p className="text-xs font-medium text-foreground">Transfer OTP</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Contact your account manager to obtain a one-time code before proceeding.
-                  </p>
+                  {sendTransferOtp.isPending ? (
+                    <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Loader2 size={11} className="animate-spin" /> Sending OTP to your email…
+                    </p>
+                  ) : sendTransferOtp.isError ? (
+                    <p className="text-xs text-destructive">
+                      Failed to send OTP.{" "}
+                      <button className="underline" onClick={() => sendTransferOtp.mutate(fromId!)}>Retry</button>
+                    </p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      A one-time code has been sent to your registered email. Valid for 10 minutes.{" "}
+                      <button className="text-primary underline" onClick={() => sendTransferOtp.mutate(fromId!)}>Resend</button>
+                    </p>
+                  )}
                   <Input
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value)}
@@ -783,7 +807,7 @@ const TransferPage = () => {
                 </div>
                 <Button variant="hero" className="w-full" size="lg"
                   disabled={!amount || parsedAmount <= 0 || parsedAmount > fromAccount.balance}
-                  onClick={() => setExtStep("confirm")}>
+                  onClick={goToExtConfirm}>
                   Review Transfer <ArrowRight size={18} />
                 </Button>
               </>
@@ -822,11 +846,23 @@ const TransferPage = () => {
               <div className="space-y-2 rounded border border-border/40 bg-muted/30 p-4">
                 <div className="flex items-center gap-2">
                   <KeyRound size={14} className="text-muted-foreground" />
-                  <p className="text-xs font-medium text-foreground">Transfer OTP required</p>
+                  <p className="text-xs font-medium text-foreground">Transfer OTP</p>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Contact your account manager to obtain a one-time code before proceeding.
-                </p>
+                {sendTransferOtp.isPending ? (
+                  <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Loader2 size={11} className="animate-spin" /> Sending OTP to your email…
+                  </p>
+                ) : sendTransferOtp.isError ? (
+                  <p className="text-xs text-destructive">
+                    Failed to send OTP.{" "}
+                    <button className="underline" onClick={() => sendTransferOtp.mutate(fromId!)}>Retry</button>
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    A one-time code has been sent to your registered email. Valid for 10 minutes.{" "}
+                    <button className="text-primary underline" onClick={() => sendTransferOtp.mutate(fromId!)}>Resend</button>
+                  </p>
+                )}
                 <Input
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value)}

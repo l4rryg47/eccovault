@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, Loader2, Users, ArrowUpRight, ArrowDownLeft,
   Plus, Trash2, Upload, X, CheckCircle2, ExternalLink, Camera,
-  ShieldCheck, ShieldAlert, Snowflake, PauseCircle, Clock, Key, MessageSquare,
+  ShieldCheck, ShieldAlert, Snowflake, PauseCircle, Clock, MessageSquare,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -12,7 +12,7 @@ import {
   useAdminUsers, useAdminUserAccounts, useAdminUserTransactions,
   useAdminAdjustBalance, useAdminCreateUser, useAdminUpdateUser,
   useAdminUpdateProfile, useAdminDeleteUser, useAdminSetUserStatus,
-  useAdminGenerateTransferOtp, useAdminSetTransferPendingMessage,
+  useAdminSetTransferPendingMessage,
   adminKeys, type AdminUser, type AdminUserStatus,
 } from "@/hooks/useAdmin";
 import { uploadKycDocuments, uploadAvatar, type KycDocument } from "@/lib/cloudinary";
@@ -358,7 +358,6 @@ const UserDetail = ({
   const updateProfile = useAdminUpdateProfile();
   const deleteUser   = useAdminDeleteUser();
   const setStatus    = useAdminSetUserStatus();
-  const generateOtp  = useAdminGenerateTransferOtp();
   const setPendingMsg = useAdminSetTransferPendingMessage();
   const qc           = useQueryClient();
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -388,7 +387,6 @@ const UserDetail = ({
   const [savingProfile,  setSavingProfile]  = useState(false);
   const [confirmDelete,  setConfirmDelete]  = useState(false);
   const [pendingStatus,  setPendingStatus]  = useState<AdminUserStatus | null>(null);
-  const [otpByAccount,   setOtpByAccount]   = useState<Record<string, string>>({});
   const [msgByAccount,   setMsgByAccount]   = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -663,35 +661,6 @@ const UserDetail = ({
                         <p className={`font-display text-lg font-bold ${a.balance < 0 ? "text-destructive" : "text-foreground"}`}>
                           {formatCurrency(a.balance)}
                         </p>
-                      </div>
-                      {/* OTP generation row */}
-                      <div className="flex items-center gap-3 border-t border-border/20 px-4 py-2.5">
-                        <Key size={13} className="shrink-0 text-muted-foreground" />
-                        <span className="flex-1 text-xs text-muted-foreground">Transfer OTP</span>
-                        {otpByAccount[a.id] ? (
-                          <span className="font-mono text-sm font-bold tracking-widest text-primary select-all">
-                            {otpByAccount[a.id]}
-                          </span>
-                        ) : (
-                          <span className="text-xs text-muted-foreground italic">not generated</span>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-7 px-2 text-xs"
-                          disabled={generateOtp.isPending}
-                          onClick={() =>
-                            generateOtp.mutate(a.id, {
-                              onSuccess: (r) => {
-                                setOtpByAccount((prev) => ({ ...prev, [a.id]: r.code! }));
-                                toast.success(`OTP generated: ${r.code}`);
-                              },
-                              onError: (e: Error) => toast.error(e.message),
-                            })
-                          }
-                        >
-                          {generateOtp.isPending ? <Loader2 size={11} className="animate-spin" /> : "Generate"}
-                        </Button>
                       </div>
                       {/* Per-account pending-review message */}
                       {(() => {
